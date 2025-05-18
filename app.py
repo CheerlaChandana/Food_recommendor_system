@@ -4,10 +4,15 @@ import pandas as pd
 import numpy as np
 import ast
 import os
+
+# Optional: install required package (use only if needed in cloud)
 os.system("pip install scikit-learn")
+
 from sklearn.preprocessing import MinMaxScaler
 
+# ------------------------
 # Function to load and preprocess data
+# ------------------------
 @st.cache_data
 def load_data(path):
     df = pd.read_excel(path, sheet_name='English_version', header=None)
@@ -57,7 +62,9 @@ def load_data(path):
     df = df.dropna(subset=['recipe_name', 'price']).reset_index(drop=True)
     return df
 
-# Score recipes function
+# ------------------------
+# Score Recipes
+# ------------------------
 def score_recipes(df, weights, max_ghg, max_price, min_protein):
     df = df.copy()
     for col in ['ghg_total', 'price', 'protein_(g)']:
@@ -82,21 +89,13 @@ def score_recipes(df, weights, max_ghg, max_price, min_protein):
     
     return df.sort_values(by='score', ascending=False)
 
-# Recommendation function
+# ------------------------
+# Recommend Recipes
+# ------------------------
 def recommend_recipes(
-    df,
-    max_ghg,
-    max_price,
-    min_protein,
-    max_energy,
-    cuisine,
-    max_cooking_time,
-    selected_nutrients,
-    keywords,
-    cooking_method,
-    dish_type,
-    weights,
-    top_n
+    df, max_ghg, max_price, min_protein, max_energy,
+    cuisine, max_cooking_time, selected_nutrients, keywords,
+    cooking_method, dish_type, weights, top_n
 ):
     filtered_df = df.copy()
     
@@ -131,10 +130,12 @@ def recommend_recipes(
     
     return filtered_df.head(top_n)
 
+# ------------------------
 # Streamlit UI
+# ------------------------
 st.title("🌿 Nutrient & Price-Conscious Recipe Recommender")
 
-df = load_data('/content/recipe_data_with_Eng_name.xlsx')
+df = load_data('recipe_data_with_Eng_name.xlsx')  # Adjust path if needed
 
 st.sidebar.header("Filter Recipes")
 
@@ -150,7 +151,7 @@ nutrient_options = [
 ]
 selected_nutrients = {}
 for nutrient in nutrient_options:
-    min_value = st.sidebar.slider(f"Minimum {nutrient.replace('_', ' ').title()}", 
+    min_value = st.sidebar.slider(f"Minimum {nutrient.replace('_', ' ').title()}",
                                   0.0, float(df[nutrient].max()), 0.0, step=1.0)
     selected_nutrients[nutrient] = min_value
 
@@ -177,13 +178,22 @@ weight_ghg = st.sidebar.slider("Importance of Low GHG", 0.0, 1.0, 0.3, step=0.1)
 weight_price = st.sidebar.slider("Importance of Low Price", 0.0, 1.0, 0.3, step=0.1)
 weight_protein = st.sidebar.slider("Importance of High Protein", 0.0, 1.0, 0.3, step=0.1)
 weight_nutrient = st.sidebar.slider("Importance of Nutrient Score", 0.0, 1.0, 0.1, step=0.1)
-weights = {'ghg': weight_ghg, 'price': weight_price, 'protein': weight_protein, 'nutrient': weight_nutrient}
+
+weights = {
+    'ghg': weight_ghg,
+    'price': weight_price,
+    'protein': weight_protein,
+    'nutrient': weight_nutrient
+}
 
 top_n = st.slider("Number of recommendations to show", 1, 20, 5)
 
 if st.button("Get Recommendations"):
-    if not any([max_ghg, max_price, min_protein, max_energy, cuisine != "All", 
-                max_cooking_time, any(v > 0 for v in selected_nutrients.values()), keywords, cooking_method != "All", dish_type != "All"]):
+    if not any([
+        max_ghg, max_price, min_protein, max_energy, cuisine != "All", 
+        max_cooking_time, any(v > 0 for v in selected_nutrients.values()), 
+        keywords, cooking_method != "All", dish_type != "All"
+    ]):
         st.warning("Please provide at least one filter or keyword.")
     else:
         results = recommend_recipes(
@@ -202,9 +212,5 @@ if st.button("Get Recommendations"):
                 st.write(f"**Price:** ¥{row['price']:.2f}")
                 st.write(f"**GHG Total:** {row['ghg_total']:.2f} kg CO2e")
                 st.write(f"**Protein:** {row['protein_(g)']:.2f} g")
-                st.write(f"**Cooking Time:**{row['cooking_time']} min")
-                st.write(f"Description: {row['recipe_description']}")
+                st.write(f"**Cooking Time:** {row['cooking_time']} minutes")
                 st.markdown("---")
-
-
-
