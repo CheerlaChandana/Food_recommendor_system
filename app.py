@@ -3,6 +3,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import ast
+import os
+os.system("pip install scikit-learn")
 from sklearn.preprocessing import MinMaxScaler
 
 # Function to load and preprocess data
