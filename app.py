@@ -1,4 +1,5 @@
 # %%writefile app.py
+# %%writefile app.py
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -207,3 +208,4 @@ if st.button("Get Recommendations"):
                 with col3:
                     st.write(f"Description: {row.get('recipe_description', 'No description')}")
                 st.markdown("---")
+   
