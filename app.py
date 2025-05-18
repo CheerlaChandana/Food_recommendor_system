@@ -133,7 +133,7 @@ def recommend_recipes(
 # Streamlit UI
 st.title("🌿 Nutrient & Price-Conscious Recipe Recommender")
 
-df = load_data('/content/recipe_data_with_Eng_name.xlsx')
+df = load_data('recipe_data_with_Eng_name.xlsx')
 
 st.sidebar.header("Filter Recipes")
 
